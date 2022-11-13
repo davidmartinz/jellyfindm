@@ -1,0 +1,31 @@
+version: "3.3"
+
+networks:
+    web:
+        external: true
+
+services:
+
+  jellyfin:
+    image: linuxserver/jellyfin
+    container_name: jellyfin
+    restart: unless-stopped 
+    env_file: .env
+    expose:
+    - "80"
+    - "443"
+    labels:
+    # Traefik
+    traefik.enable: 'true'
+    traefik.frontend.rule: "Host:${JELLYFIN_HOST}"
+    traefik.port: '8200'
+   # Caddy
+    caddy: ${JELLYFIN_HOST}
+    caddy.reverse_proxy: "{{upstreams 8096}}" 
+   networks:
+    - web
+   volumes:
+    - ./config:/config
+    - ./tvshows:/data/tvshows  
+    - ./movies:/data/movies   
+    - ./music:/data/music
